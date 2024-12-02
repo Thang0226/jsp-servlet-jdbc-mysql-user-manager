@@ -21,7 +21,7 @@
         <h2>
             Search User By Country
         </h2>
-        <form method="post" style="margin-bottom: 5px">
+        <form action="/users" method="post" style="margin-bottom: 5px">
             <input type="hidden" name="action" value="search">
             <input type="text" name="country" placeholder="Country">
             <input type="submit" value="Search">
@@ -72,6 +72,10 @@
             </tr>
         </c:forEach>
     </table>
+    <form action="/users" method="post" style="margin-top: 10px">
+        <input type="hidden" name="action" value="sort">
+        <input type="submit" value="Sort By Name" style="width: 120px">
+    </form>
 </div>
 </body>
 </html>

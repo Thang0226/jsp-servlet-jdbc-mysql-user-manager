@@ -1,4 +1,4 @@
-package service;
+package DAO;
 
 import model.User;
 
@@ -17,6 +17,7 @@ public class UserDAO implements IUserDAO {
 	private static final String DELETE_USER_SQL = "delete from users where id = ?;";
 	private static final String UPDATE_USER_SQL = "update users set name = ?,email= ?, country =? where id = ?;";
 	private static final String SELECT_USERS_BY_COUNTRY = "SELECT id,name,email,country FROM users WHERE country =?";
+	private static final String SELECT_USERS_SORTED_BY_NAME = "select * from users order by name;";
 
 	public UserDAO() {
 	}
@@ -70,9 +71,17 @@ public class UserDAO implements IUserDAO {
 
 	@Override
 	public List<User> selectAllUsers() {
-		List<User> users = new ArrayList<>();
+		return selectUsers(SELECT_ALL_USERS);
+	}
+
+	public List<User> selectUsersSortedByName() {
+		return selectUsers(SELECT_USERS_SORTED_BY_NAME);
+	}
+
+	private List<User> selectUsers(String select_sql) {
+		List<User> result_users = new ArrayList<>();
 		try (Connection connection = getConnection();
-		     PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_USERS))
+		     PreparedStatement preparedStatement = connection.prepareStatement(select_sql))
 		{
 			System.out.println(preparedStatement);
 			ResultSet rs = preparedStatement.executeQuery();
@@ -81,12 +90,12 @@ public class UserDAO implements IUserDAO {
 				String name = rs.getString("name");
 				String email = rs.getString("email");
 				String country = rs.getString("country");
-				users.add(new User(id, name, email, country));
+				result_users.add(new User(id, name, email, country));
 			}
 		} catch (SQLException e) {
 			printSQLException(e);
 		}
-		return users;
+		return result_users;
 	}
 
 	public List<User> selectUsersByCountry(String in_country) {

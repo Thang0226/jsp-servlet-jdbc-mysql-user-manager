@@ -1,7 +1,7 @@
 package controller;
 
 import model.User;
-import service.UserDAO;
+import DAO.UserDAO;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -98,6 +98,12 @@ public class UserServlet extends HttpServlet {
 				case "search":
 					searchUserByCountry(request, response);
 					break;
+				case "sort":
+					sortUserByName(request, response);
+					break;
+				default:
+					listUser(request, response);
+					break;
 			}
 		} catch (SQLException ex) {
 			throw new ServletException(ex);
@@ -133,6 +139,14 @@ public class UserServlet extends HttpServlet {
 		List<User> list_users = userDAO.selectUsersByCountry(country);
 		request.setAttribute("list_users", list_users);
 		List<User> listUser = userDAO.selectAllUsers();
+		request.setAttribute("listUser", listUser);
+		RequestDispatcher dispatcher = request.getRequestDispatcher("user/list.jsp");
+		dispatcher.forward(request, response);
+	}
+
+	private void sortUserByName(HttpServletRequest request, HttpServletResponse response)
+			throws SQLException, ServletException, IOException {
+		List<User> listUser = userDAO.selectUsersSortedByName();
 		request.setAttribute("listUser", listUser);
 		RequestDispatcher dispatcher = request.getRequestDispatcher("user/list.jsp");
 		dispatcher.forward(request, response);

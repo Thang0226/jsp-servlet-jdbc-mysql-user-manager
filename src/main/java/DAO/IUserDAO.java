@@ -1,4 +1,4 @@
-package service;
+package DAO;
 
 import model.User;
 
