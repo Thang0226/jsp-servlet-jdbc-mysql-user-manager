@@ -12,10 +12,11 @@ public class UserDAO implements IUserDAO {
 	private String jdbcPassword = "123456";
 
 	private static final String INSERT_USER_SQL = "INSERT INTO users (name, email, country) VALUES (?, ?, ?);";
-	private static final String SELECT_USER_BY_ID = "SELECT id,name,email,country FROM users WHERE id =?";
+	private static final String SELECT_USERS_BY_ID = "SELECT id,name,email,country FROM users WHERE id =?";
 	private static final String SELECT_ALL_USERS = "select * from users";
 	private static final String DELETE_USER_SQL = "delete from users where id = ?;";
 	private static final String UPDATE_USER_SQL = "update users set name = ?,email= ?, country =? where id = ?;";
+	private static final String SELECT_USERS_BY_COUNTRY = "SELECT id,name,email,country FROM users WHERE country =?";
 
 	public UserDAO() {
 	}
@@ -50,7 +51,7 @@ public class UserDAO implements IUserDAO {
 	public User selectUser(int id) {
 		User user = null;
 		try (Connection connection = getConnection();
-		     PreparedStatement preparedStatement = connection.prepareStatement(SELECT_USER_BY_ID))
+		     PreparedStatement preparedStatement = connection.prepareStatement(SELECT_USERS_BY_ID))
 		{
 			preparedStatement.setInt(1, id);
 			System.out.println(preparedStatement);
@@ -86,6 +87,27 @@ public class UserDAO implements IUserDAO {
 			printSQLException(e);
 		}
 		return users;
+	}
+
+	public List<User> selectUsersByCountry(String in_country) {
+		List<User> result_users = new ArrayList<>();
+		try (Connection connection = getConnection();
+		     PreparedStatement preparedStatement = connection.prepareStatement(SELECT_USERS_BY_COUNTRY))
+		{
+			System.out.println(preparedStatement);
+			preparedStatement.setString(1, in_country);
+			ResultSet rs = preparedStatement.executeQuery();
+			while (rs.next()) {
+				int id = rs.getInt("id");
+				String name = rs.getString("name");
+				String email = rs.getString("email");
+				String country = rs.getString("country");
+				result_users.add(new User(id, name, email, country));
+			}
+		} catch (SQLException e) {
+			printSQLException(e);
+		}
+		return result_users;
 	}
 
 	@Override
