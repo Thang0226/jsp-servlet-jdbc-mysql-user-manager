@@ -262,12 +262,17 @@ public class UserDAO implements IUserDAO {
 
 	@Override
 	public void insertUpdateEmployeeWithoutTransaction() {
-		try (Connection conn = getConnection();
+		Connection conn = null;
+		try {
+			conn = getConnection();
 		     Statement statement = conn.createStatement();
 		     PreparedStatement psInsert = conn.prepareStatement(SQL_INSERT_EMPLOYEE);
-		     PreparedStatement psUpdate = conn.prepareStatement(SQL_UPDATE_EMPLOYEE)) {
+		     PreparedStatement psUpdate = conn.prepareStatement(SQL_UPDATE_EMPLOYEE);
 			statement.execute(SQL_DROP_EMPLOYEE_TABLE);
 			statement.execute(SQL_CREATE_EMPLOYEE_TABLE);
+
+			// start transaction block
+			conn.setAutoCommit(false); // default true
 
 			// Run list of insert commands
 			psInsert.setString(1, "Quynh");
@@ -287,8 +292,20 @@ public class UserDAO implements IUserDAO {
 			//psUpdate.setBigDecimal(1, new BigDecimal(999.99));
 			psUpdate.setString(2, "Quynh");
 			psUpdate.execute();
-		} catch (Exception e) {
-			printSQLException((SQLException) e);
+
+			// end transaction block, commit changes
+			conn.commit();
+			// good practice to set it back to default true
+			conn.setAutoCommit(true);
+
+		} catch (SQLException e) {
+			try {
+				if (conn != null)
+					conn.rollback();
+			} catch (SQLException ex) {
+				throw new RuntimeException(ex);
+			}
+			printSQLException(e);
 		}
 	}
 

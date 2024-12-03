@@ -62,6 +62,14 @@ select * from user_permission;
 
 
 
+create table Employee ( 
+            id int(3) PRIMARY KEY AUTO_INCREMENT,
+            name varchar(120) NOT NULL,
+            salary int(220) NOT NULL,
+            created_Date datetime
+);
+
+select * from employee;
 
 
 

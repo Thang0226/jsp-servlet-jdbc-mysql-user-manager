@@ -40,7 +40,7 @@ public class UserServlet extends HttpServlet {
 				case "delete":
 					deleteUser(request, response);
 					break;
-				case "test-without-tran":
+				case "test-transaction":
 					testWithoutTran(request, response);
 					break;
 				default:
