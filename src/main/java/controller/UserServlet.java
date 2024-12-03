@@ -140,6 +140,7 @@ public class UserServlet extends HttpServlet {
 		request.setAttribute("list_users", list_users);
 		List<User> listUser = userDAO.selectAllUsers();
 		request.setAttribute("listUser", listUser);
+		request.setAttribute("country", country);
 		RequestDispatcher dispatcher = request.getRequestDispatcher("user/list.jsp");
 		dispatcher.forward(request, response);
 	}

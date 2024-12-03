@@ -20,7 +20,7 @@
 </center>
 <div align="center">
   <form method="post">
-    <table border="1" cellpadding="5">
+    <table border="1" cellpadding="5" style="border-collapse: collapse">
       <caption>
         <h2>
           Edit User
