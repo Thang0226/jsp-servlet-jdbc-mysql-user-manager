@@ -14,8 +14,8 @@ public class UserDAO implements IUserDAO {
 	private static final String INSERT_USER_SQL = "INSERT INTO users (name, email, country) VALUES (?, ?, ?);";
 	private static final String SELECT_USERS_BY_ID = "SELECT id,name,email,country FROM users WHERE id =?";
 	private static final String SELECT_ALL_USERS = "select * from users";
-	private static final String DELETE_USER_SQL = "delete from users where id = ?;";
-	private static final String UPDATE_USER_SQL = "update users set name = ?,email= ?, country =? where id = ?;";
+	private static final String DELETE_USER_SQL = "DELETE FROM users WHERE id = ?;";
+	private static final String UPDATE_USER_SQL = "UPDATE users SET name = ?,email= ?, country =? WHERE id = ?;";
 	private static final String SELECT_USERS_BY_COUNTRY = "SELECT id,name,email,country FROM users WHERE country =?";
 	private static final String SELECT_USERS_SORTED_BY_NAME = "select * from users order by name;";
 
@@ -24,7 +24,7 @@ public class UserDAO implements IUserDAO {
 
 	protected Connection getConnection() throws SQLException {
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
+			Class.forName("com.mysql.jdbc.Driver");     // safer than DriverManager.registerDriver()
 		} catch (ClassNotFoundException e) {
 			System.out.println(e.getMessage());
 		}
@@ -36,8 +36,7 @@ public class UserDAO implements IUserDAO {
 	public void insertUser(User user) throws SQLException {
 		System.out.println(INSERT_USER_SQL);
 		try (Connection connection = getConnection();
-		     PreparedStatement preparedStatement = connection.prepareStatement(INSERT_USER_SQL))
-		{
+		     PreparedStatement preparedStatement = connection.prepareStatement(INSERT_USER_SQL)) {
 			preparedStatement.setString(1, user.getName());
 			preparedStatement.setString(2, user.getEmail());
 			preparedStatement.setString(3, user.getCountry());
@@ -52,8 +51,7 @@ public class UserDAO implements IUserDAO {
 	public User selectUser(int id) {
 		User user = null;
 		try (Connection connection = getConnection();
-		     PreparedStatement preparedStatement = connection.prepareStatement(SELECT_USERS_BY_ID))
-		{
+		     PreparedStatement preparedStatement = connection.prepareStatement(SELECT_USERS_BY_ID)) {
 			preparedStatement.setInt(1, id);
 			System.out.println(preparedStatement);
 			ResultSet rs = preparedStatement.executeQuery();
@@ -81,8 +79,7 @@ public class UserDAO implements IUserDAO {
 	private List<User> selectUsers(String select_sql) {
 		List<User> result_users = new ArrayList<>();
 		try (Connection connection = getConnection();
-		     PreparedStatement preparedStatement = connection.prepareStatement(select_sql))
-		{
+		     PreparedStatement preparedStatement = connection.prepareStatement(select_sql)) {
 			System.out.println(preparedStatement);
 			ResultSet rs = preparedStatement.executeQuery();
 			while (rs.next()) {
@@ -101,8 +98,7 @@ public class UserDAO implements IUserDAO {
 	public List<User> selectUsersByCountry(String in_country) {
 		List<User> result_users = new ArrayList<>();
 		try (Connection connection = getConnection();
-		     PreparedStatement preparedStatement = connection.prepareStatement(SELECT_USERS_BY_COUNTRY))
-		{
+		     PreparedStatement preparedStatement = connection.prepareStatement(SELECT_USERS_BY_COUNTRY)) {
 			System.out.println(preparedStatement);
 			preparedStatement.setString(1, in_country);
 			ResultSet rs = preparedStatement.executeQuery();
@@ -123,8 +119,7 @@ public class UserDAO implements IUserDAO {
 	public boolean deleteUser(int id) throws SQLException {
 		boolean rowDeleted = false;
 		try (Connection connection = getConnection();
-		     PreparedStatement statement = connection.prepareStatement(DELETE_USER_SQL))
-		{
+		     PreparedStatement statement = connection.prepareStatement(DELETE_USER_SQL)) {
 			statement.setInt(1, id);
 			rowDeleted = statement.executeUpdate() > 0;
 		} catch (SQLException e) {
@@ -137,8 +132,7 @@ public class UserDAO implements IUserDAO {
 	public boolean updateUser(User user) throws SQLException {
 		boolean rowUpdated = false;
 		try (Connection connection = getConnection();
-		     PreparedStatement statement = connection.prepareStatement(UPDATE_USER_SQL))
-		{
+		     PreparedStatement statement = connection.prepareStatement(UPDATE_USER_SQL)) {
 			statement.setString(1, user.getName());
 			statement.setString(2, user.getEmail());
 			statement.setString(3, user.getCountry());
@@ -148,6 +142,45 @@ public class UserDAO implements IUserDAO {
 			printSQLException(e);
 		}
 		return rowUpdated;
+	}
+
+	@Override
+	public User getUserById(int id) {
+		User user = null;
+		String query = "{CALL get_user_by_id(?)}";
+
+		try (Connection connection = getConnection();
+		     CallableStatement callableStatement = connection.prepareCall(query))
+		{
+			callableStatement.setInt(1, id);
+			ResultSet rs = callableStatement.executeQuery();
+
+			if (rs.next()) {
+				String name = rs.getString("name");
+				String email = rs.getString("email");
+				String country = rs.getString("country");
+				user = new User(id, name, email, country);
+			}
+		} catch (SQLException e) {
+			printSQLException(e);
+		}
+		return user;
+	}
+
+	@Override
+	public void insertUserToStore(User user) throws SQLException {
+		String query = "{CALL insert_user(?,?,?)}";
+		try (Connection connection = getConnection();
+		     CallableStatement callableStatement = connection.prepareCall(query))
+		{
+			callableStatement.setString(1, user.getName());
+			callableStatement.setString(2, user.getEmail());
+			callableStatement.setString(3, user.getCountry());
+			System.out.println(callableStatement);
+			callableStatement.executeUpdate();
+		} catch (SQLException e) {
+			printSQLException(e);
+		}
 	}
 
 	private void printSQLException(SQLException ex) {

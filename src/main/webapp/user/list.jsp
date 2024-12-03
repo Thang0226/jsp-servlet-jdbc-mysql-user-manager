@@ -18,7 +18,7 @@
         <a href="/users?action=create" style="text-decoration: none; color: blue">Add New User</a>
     </h2>
     <div align="center" style="border: 2px solid gray; padding: 10px; margin: 20px; width: 30%">
-        <h2 style="margin: 10px">
+        <h2 style="margin: 0 10px 10px 10px">
             Search Users By Country
         </h2>
         <form action="/users" method="post" style="margin: 5px 0">
@@ -51,7 +51,7 @@
 
     <div align="center" style="border: 2px solid gray; padding: 10px; margin: 20px; width: 30%">
         <table border="1" cellpadding="5" style="border-collapse: collapse">
-            <caption><h2 style="margin: 10px">List of Users</h2></caption>
+            <caption><h2 style="margin: 0 10px 10px 10px">List of Users</h2></caption>
             <tr>
                 <th>ID</th>
                 <th>Name</th>
