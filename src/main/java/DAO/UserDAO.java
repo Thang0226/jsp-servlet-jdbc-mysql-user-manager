@@ -148,31 +148,53 @@ public class UserDAO implements IUserDAO {
 
 	@Override
 	public boolean deleteUser(int id) throws SQLException {
-		boolean rowDeleted = false;
+		boolean rowDeleted;
 		try (Connection connection = getConnection();
-		     PreparedStatement statement = connection.prepareStatement(DELETE_USER_SQL)) {
-			statement.setInt(1, id);
-			rowDeleted = statement.executeUpdate() > 0;
-		} catch (SQLException e) {
-			printSQLException(e);
+			CallableStatement stmt = connection.prepareCall("{CALL delete_user(?)}")
+		) {
+			stmt.setInt(1, id);
+			rowDeleted = stmt.executeUpdate() > 0;
 		}
 		return rowDeleted;
+
+//		boolean rowDeleted = false;
+//		try (Connection connection = getConnection();
+//		     PreparedStatement statement = connection.prepareStatement(DELETE_USER_SQL)) {
+//			statement.setInt(1, id);
+//			rowDeleted = statement.executeUpdate() > 0;
+//		} catch (SQLException e) {
+//			printSQLException(e);
+//		}
+//		return rowDeleted;
 	}
 
 	@Override
 	public boolean updateUser(User user) throws SQLException {
-		boolean rowUpdated = false;
+		boolean rowUpdated;
 		try (Connection connection = getConnection();
-		     PreparedStatement statement = connection.prepareStatement(UPDATE_USER_SQL)) {
-			statement.setString(1, user.getName());
-			statement.setString(2, user.getEmail());
-			statement.setString(3, user.getCountry());
-			statement.setInt(4, user.getId());
-			rowUpdated = statement.executeUpdate() > 0;
-		} catch (SQLException e) {
-			printSQLException(e);
+		     CallableStatement stmt = connection.prepareCall("{CALL update_user(?,?,?,?)}")
+		) {
+			stmt.setInt(1, user.getId());
+			stmt.setString(2, user.getName());
+			stmt.setString(3, user.getEmail());
+			stmt.setString(4, user.getCountry());
+
+			rowUpdated = stmt.executeUpdate() > 0;
 		}
 		return rowUpdated;
+
+//		boolean rowUpdated = false;
+//		try (Connection connection = getConnection();
+//		     PreparedStatement statement = connection.prepareStatement(UPDATE_USER_SQL)) {
+//			statement.setString(1, user.getName());
+//			statement.setString(2, user.getEmail());
+//			statement.setString(3, user.getCountry());
+//			statement.setInt(4, user.getId());
+//			rowUpdated = statement.executeUpdate() > 0;
+//		} catch (SQLException e) {
+//			printSQLException(e);
+//		}
+//		return rowUpdated;
 	}
 
 	@Override

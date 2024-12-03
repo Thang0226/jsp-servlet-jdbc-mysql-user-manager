@@ -79,7 +79,7 @@ public class UserServlet extends HttpServlet {
 	private void showEditForm(HttpServletRequest request, HttpServletResponse response)
 			throws SQLException, ServletException, IOException {
 		int id = Integer.parseInt(request.getParameter("id"));
-		User existingUser = userDAO.selectUser(id);
+		User existingUser = userDAO.getUserById(id);
 		RequestDispatcher dispatcher = request.getRequestDispatcher("user/edit.jsp");
 		request.setAttribute("user", existingUser);
 		dispatcher.forward(request, response);
@@ -155,8 +155,8 @@ public class UserServlet extends HttpServlet {
 		String name = request.getParameter("name");
 		String email = request.getParameter("email");
 		String country = request.getParameter("country");
-		User book = new User(id, name, email, country);
-		userDAO.updateUser(book);
+		User user = new User(id, name, email, country);
+		userDAO.updateUser(user);
 		RequestDispatcher dispatcher = request.getRequestDispatcher("user/edit.jsp");
 		dispatcher.forward(request, response);
 	}
