@@ -43,6 +43,29 @@ DELIMITER ;
 
 
 
+create table Permission(
+      id int(11) primary key,
+      name varchar(50)
+);
+
+create table User_Permission(
+	user_id int(11),
+	permission_id int(11)
+);
+
+insert into Permission(id, name) values(1, 'add');
+insert into Permission(id, name) values(2, 'edit');
+insert into Permission(id, name) values(3, 'delete');
+insert into Permission(id, name) values(4, 'view');
+
+select * from user_permission;
+
+
+
+
+
+
+
 
 
 
