@@ -37,7 +37,7 @@ public class UserDAO implements IUserDAO {
 
 	protected Connection getConnection() throws SQLException {
 		try {
-			Class.forName("com.mysql.jdbc.Driver");     // safer than DriverManager.registerDriver()
+			Class.forName("com.mysql.cj.jdbc.Driver");     // safer than DriverManager.registerDriver()
 		} catch (ClassNotFoundException e) {
 			System.out.println(e.getMessage());
 		}
@@ -251,7 +251,7 @@ public class UserDAO implements IUserDAO {
 
 			// Insert user
 			pstmt = conn.prepareStatement(INSERT_USER_SQL, Statement.RETURN_GENERATED_KEYS);
-			pstmt.setString(1, user.getName());
+//			pstmt.setString(1, user.getName());
 			pstmt.setString(2, user.getEmail());
 			pstmt.setString(3, user.getCountry());
 			int rowAffected = pstmt.executeUpdate();
