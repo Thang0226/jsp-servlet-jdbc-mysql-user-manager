@@ -2,7 +2,9 @@ package DAO;
 
 import model.User;
 
+import java.math.BigDecimal;
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +20,17 @@ public class UserDAO implements IUserDAO {
 	private static final String UPDATE_USER_SQL = "UPDATE users SET name = ?,email= ?, country =? WHERE id = ?;";
 	private static final String SELECT_USERS_BY_COUNTRY = "SELECT id,name,email,country FROM users WHERE country =?";
 	private static final String SELECT_USERS_SORTED_BY_NAME = "select * from users order by name;";
+	private static final String SQL_INSERT_EMPLOYEE = "INSERT INTO EMPLOYEE (NAME, SALARY, CREATED_DATE) VALUES (?,?,?)";
+	private static final String SQL_UPDATE_EMPLOYEE = "UPDATE EMPLOYEE SET SALARY=? WHERE NAME=?";
+	private static final String SQL_CREATE_EMPLOYEE_TABLE = "CREATE TABLE EMPLOYEE"
+			+ "("
+			+ " ID serial,"
+			+ " NAME varchar(100) NOT NULL,"
+			+ " SALARY numeric(15, 2) NOT NULL,"
+			+ " CREATED_DATE timestamp,"
+			+ " PRIMARY KEY (ID)"
+			+ ")";
+	private static final String SQL_DROP_EMPLOYEE_TABLE = "DROP TABLE IF EXISTS EMPLOYEE";
 
 	public UserDAO() {
 	}
@@ -150,8 +163,7 @@ public class UserDAO implements IUserDAO {
 		String query = "{CALL get_user_by_id(?)}";
 
 		try (Connection connection = getConnection();
-		     CallableStatement callableStatement = connection.prepareCall(query))
-		{
+		     CallableStatement callableStatement = connection.prepareCall(query)) {
 			callableStatement.setInt(1, id);
 			ResultSet rs = callableStatement.executeQuery();
 
@@ -171,8 +183,7 @@ public class UserDAO implements IUserDAO {
 	public void insertUserToStore(User user) throws SQLException {
 		String query = "{CALL insert_user(?,?,?)}";
 		try (Connection connection = getConnection();
-		     CallableStatement callableStatement = connection.prepareCall(query))
-		{
+		     CallableStatement callableStatement = connection.prepareCall(query)) {
 			callableStatement.setString(1, user.getName());
 			callableStatement.setString(2, user.getEmail());
 			callableStatement.setString(3, user.getCountry());
@@ -246,6 +257,38 @@ public class UserDAO implements IUserDAO {
 			} catch (SQLException e) {
 				printSQLException(e);
 			}
+		}
+	}
+
+	@Override
+	public void insertUpdateEmployeeWithoutTransaction() {
+		try (Connection conn = getConnection();
+		     Statement statement = conn.createStatement();
+		     PreparedStatement psInsert = conn.prepareStatement(SQL_INSERT_EMPLOYEE);
+		     PreparedStatement psUpdate = conn.prepareStatement(SQL_UPDATE_EMPLOYEE)) {
+			statement.execute(SQL_DROP_EMPLOYEE_TABLE);
+			statement.execute(SQL_CREATE_EMPLOYEE_TABLE);
+
+			// Run list of insert commands
+			psInsert.setString(1, "Quynh");
+			psInsert.setBigDecimal(2, new BigDecimal(10));
+			psInsert.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
+			psInsert.execute();
+
+			psInsert.setString(1, "Ngan");
+			psInsert.setBigDecimal(2, new BigDecimal(20));
+			psInsert.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
+			psInsert.execute();
+
+			// Run list of update commands
+			// below line caused error, test transaction
+			// Message: No value specified for parameter 1.
+			psUpdate.setBigDecimal(2, new BigDecimal(999.99));
+			//psUpdate.setBigDecimal(1, new BigDecimal(999.99));
+			psUpdate.setString(2, "Quynh");
+			psUpdate.execute();
+		} catch (Exception e) {
+			printSQLException((SQLException) e);
 		}
 	}
 
