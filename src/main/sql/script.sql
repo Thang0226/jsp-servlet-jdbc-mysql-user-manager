@@ -41,6 +41,39 @@ BEGIN
  END$$
 DELIMITER ;
 
+DELIMITER $$
+CREATE PROCEDURE list_user()
+BEGIN
+	select * from users;
+ END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE update_user(
+	IN in_id int,
+    IN in_name varchar(100),
+    IN in_email varchar(100),
+    IN in_country varchar(100)
+)
+BEGIN
+	update users set
+    name = in_name,
+    email = in_email,
+	country = in_country
+    where id = in_id;
+ END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE delete_user(
+	IN in_id int
+)	
+BEGIN	
+	delete from users
+    where id = in_id;
+END $$
+DELIMITER ;
+
 
 
 create table Permission(

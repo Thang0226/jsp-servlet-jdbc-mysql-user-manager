@@ -82,7 +82,25 @@ public class UserDAO implements IUserDAO {
 
 	@Override
 	public List<User> selectAllUsers() {
-		return selectUsers(SELECT_ALL_USERS);
+//		return selectUsers(SELECT_ALL_USERS);
+		List<User> result_users = new ArrayList<>();
+		String query = "{CALL list_user()}";
+
+		try (Connection connection = getConnection();
+		     CallableStatement callableStatement = connection.prepareCall(query))
+		{
+			ResultSet rs = callableStatement.executeQuery();
+			while (rs.next()) {
+				int id = rs.getInt("id");
+				String name = rs.getString("name");
+				String email = rs.getString("email");
+				String country = rs.getString("country");
+				result_users.add(new User(id, name, email, country));
+			}
+		} catch (SQLException e) {
+			printSQLException(e);
+		}
+		return result_users;
 	}
 
 	public List<User> selectUsersSortedByName() {
